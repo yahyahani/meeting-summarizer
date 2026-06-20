@@ -6,3 +6,4 @@ output/*.txt
 sample_audio/*
 !sample_audio/.gitkeep
 !output/.gitkeep
+output/*.md
