@@ -1,0 +1,15 @@
+venv/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.pytest_cache/
+output/*.txt
+output/*.md
+sample_audio/*.mp3
+sample_audio/*.wav
+sample_audio/*.m4a
+uploads/*
+.DS_Store
+README.md
+tests/

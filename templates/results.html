@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ source_name }} — Meeting Summarizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="page">
+        <span class="local-badge"><span class="dot"></span>processed locally · no upload to the cloud</span>
+
+        <div class="meta-row">
+            <h1>Summary</h1>
+        </div>
+        <p class="source-tag">{{ source_name }}</p>
+
+        <section class="block">
+            <div class="block-heading">summary</div>
+            <p class="summary-text">{{ summary }}</p>
+        </section>
+
+        <section class="block">
+            <div class="block-heading">action items ({{ action_items|length }})</div>
+            {% if action_items %}
+            <ul class="action-items">
+                {% for item in action_items %}
+                <li><span class="checkbox"></span><span>{{ item }}</span></li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="empty-note">No action items detected in this recording.</p>
+            {% endif %}
+        </section>
+
+        <section class="block">
+            <div class="block-heading">full transcript</div>
+            <details class="transcript">
+                <summary>Click to expand</summary>
+                <div class="transcript-text">{{ transcript }}</div>
+            </details>
+        </section>
+
+        <a class="back-link" href="/">&larr; Process another file</a>
+    </div>
+</body>
+</html>

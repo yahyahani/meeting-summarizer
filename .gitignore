@@ -8,3 +8,5 @@ sample_audio/*
 !output/.gitkeep
 output/*.md
 .pytest_cache/
+uploads/*
+!uploads/.gitkeep

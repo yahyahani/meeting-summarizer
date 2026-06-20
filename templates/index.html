@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Meeting Summarizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="page">
+        <span class="local-badge"><span class="dot"></span>processed locally · no upload to the cloud</span>
+
+        <h1>Meeting Summarizer</h1>
+        <p class="subtitle">
+            Drop in an audio recording. It's transcribed and summarized
+            entirely on this machine, then handed back as a summary with
+            action items.
+        </p>
+
+        {% if error %}
+        <div class="error-box">{{ error }}</div>
+        {% endif %}
+
+        <div class="card">
+            <form action="/process" method="post" enctype="multipart/form-data" id="upload-form">
+                <label class="dropzone" id="dropzone">
+                    <svg class="dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M12 16V4M12 4L7 9M12 4l5 5" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="dropzone-label">
+                        <strong>Choose a file</strong> or drag it here<br>
+                        .mp3, .wav, or .m4a
+                    </div>
+                    <div class="dropzone-filename" id="filename"></div>
+                    <input type="file" name="audio_file" id="file-input" accept=".mp3,.wav,.m4a" required>
+                </label>
+
+                <div class="field-row">
+                    <span class="field-label">whisper_model</span>
+                    <select name="model" id="model">
+                        <option value="tiny">tiny — fastest</option>
+                        <option value="base" selected>base — balanced</option>
+                        <option value="small">small — more accurate</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn" id="submit-btn">Transcribe &amp; summarize</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const filenameEl = document.getElementById('filename');
+        const dropzone = document.getElementById('dropzone');
+        const form = document.getElementById('upload-form');
+        const submitBtn = document.getElementById('submit-btn');
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                filenameEl.textContent = fileInput.files[0].name;
+                filenameEl.classList.add('visible');
+            }
+        });
+
+        ['dragenter', 'dragover'].forEach(evt =>
+            dropzone.addEventListener(evt, e => {
+                e.preventDefault();
+                dropzone.classList.add('dragover');
+            })
+        );
+
+        ['dragleave', 'drop'].forEach(evt =>
+            dropzone.addEventListener(evt, e => {
+                e.preventDefault();
+                dropzone.classList.remove('dragover');
+            })
+        );
+
+        dropzone.addEventListener('drop', e => {
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                filenameEl.textContent = e.dataTransfer.files[0].name;
+                filenameEl.classList.add('visible');
+            }
+        });
+
+        form.addEventListener('submit', () => {
+            submitBtn.textContent = 'Processing… this can take a minute';
+            submitBtn.classList.add('loading');
+        });
+    </script>
+</body>
+</html>

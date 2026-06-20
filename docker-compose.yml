@@ -1,0 +1,17 @@
+services:
+  meeting-summarizer:
+    build: .
+    ports:
+      - "5050:5000"
+    volumes:
+      # Keep generated outputs and uploaded files on the host machine,
+      # so they survive container restarts and are easy to inspect.
+      - ./output:/app/output
+      - ./uploads:/app/uploads
+      - ./sample_audio:/app/sample_audio
+      # Cache the downloaded Whisper model between container restarts,
+      # so it isn't re-downloaded every time.
+      - whisper-cache:/root/.cache/whisper
+
+volumes:
+  whisper-cache:

@@ -6,7 +6,8 @@ cloud services, no data leaving your machine.
 
 It uses [OpenAI's Whisper](https://github.com/openai/whisper) for speech-to-text
 and a local extractive summarization algorithm for the summary, so everything
-runs offline on your own CPU.
+runs offline on your own CPU. Comes with both a command-line tool and a
+local web interface.
 
 ## What it does
 
@@ -23,7 +24,7 @@ audio file (.mp3 / .wav / .m4a)
   Markdown report  ───►  output/your_meeting_summary.md
 ```
 
-Given an audio file, it produces a Markdown report containing:
+Given an audio file, it produces a summary containing:
 
 - A short summary of the key points
 - A checklist of detected action items
@@ -33,13 +34,37 @@ Given an audio file, it produces a Markdown report containing:
 
 - **Fully local and private** - no internet connection or API key required
   once the Whisper model is downloaded
-- **One-command pipeline** - transcription and summarization in a single
-  CLI call
+- **Two ways to use it** - a one-command CLI pipeline, or a local web
+  interface for drag-and-drop uploads
 - **Configurable** - choose the Whisper model size, summary length, and
   output location
 - **Tested** - core logic covered by a pytest suite
+- **Dockerized** - run the web interface with a single `docker compose up`,
+  no local Python setup required
 
-## Installation
+## Running with Docker (recommended for the web interface)
+
+The easiest way to run the web interface - no need to install Python,
+ffmpeg, or any dependencies on your machine.
+
+```bash
+docker compose up --build
+```
+
+Then open **http://localhost:5000** in your browser. Upload an audio file,
+choose a Whisper model size, and click "Transcribe & summarize."
+
+Generated transcripts and reports are saved to `output/` on your host
+machine (mapped via a volume), so they persist even after the container
+stops. The Whisper model is cached in a Docker volume, so it's only
+downloaded once.
+
+To stop it:
+```bash
+docker compose down
+```
+
+## Running locally without Docker
 
 Requires Python 3.10+ and [ffmpeg](https://ffmpeg.org) (used by Whisper to
 decode audio).
@@ -60,7 +85,15 @@ source venv/bin/activate   # on Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Usage
+### Web interface
+
+```bash
+python3 app.py
+```
+
+Open **http://127.0.0.1:5000** in your browser.
+
+### Command-line pipeline
 
 Run the full pipeline on an audio file:
 
@@ -74,7 +107,7 @@ This will:
 3. Extract action items
 4. Save a Markdown report to `output/`
 
-### Options
+#### Options
 
 | Flag | Default | Description |
 |---|---|---|
@@ -126,12 +159,21 @@ meeting-summarizer/
 │   ├── transcribe.py   # Stage 1: audio -> text (Whisper)
 │   ├── summarize.py    # Stage 2: text -> summary + action items
 │   └── pipeline.py     # CLI entry point combining both stages
+├── templates/          # HTML templates for the web interface
+│   ├── index.html
+│   └── results.html
+├── static/
+│   └── style.css       # Web interface styling
+├── app.py              # Flask web interface
 ├── tests/
 │   ├── test_transcribe.py
 │   └── test_summarize.py
 ├── sample_audio/       # put your audio files here
 ├── output/             # generated transcripts and reports land here
+├── uploads/            # temporary storage for web-uploaded files
 ├── conftest.py         # pytest path configuration
+├── Dockerfile
+├── docker-compose.yml
 └── requirements.txt
 ```
 
@@ -152,6 +194,8 @@ unclear audio. If your transcripts come out garbled, try a larger model:
 ```bash
 python3 src/pipeline.py sample_audio/meeting.m4a --model medium
 ```
+
+The same `--model` choice is available as a dropdown in the web interface.
 
 ## License
 
