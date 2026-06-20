@@ -64,12 +64,18 @@ def process():
     action_items = extract_action_items(transcript)
     source_name = os.path.splitext(filename)[0]
 
+    word_count = len(transcript.split())
+    # Rough estimate: average speaking pace is ~130 words/minute.
+    duration_minutes = max(1, round(word_count / 130))
+
     return render_template(
         "results.html",
         source_name=source_name,
         summary=summary,
         action_items=action_items,
         transcript=transcript,
+        word_count=word_count,
+        duration_minutes=duration_minutes,
     )
 
 

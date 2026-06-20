@@ -9,6 +9,8 @@ and a local extractive summarization algorithm for the summary, so everything
 runs offline on your own CPU. Comes with both a command-line tool and a
 local web interface.
 
+![Meeting Summarizer web interface](docs/screenshot.png)
+
 ## What it does
 
 ```
@@ -51,8 +53,14 @@ ffmpeg, or any dependencies on your machine.
 docker compose up --build
 ```
 
-Then open **http://localhost:5000** in your browser. Upload an audio file,
+Then open **http://localhost:5050** in your browser. Upload an audio file,
 choose a Whisper model size, and click "Transcribe & summarize."
+
+> The container listens on port 5000 internally, mapped to **5050** on
+> your machine by default (`docker-compose.yml`). On macOS, port 5000 is
+> often already taken by AirPlay Receiver, so 5050 is used to avoid that
+> conflict. Change the host-side port in `docker-compose.yml` if you'd
+> like to use something else.
 
 Generated transcripts and reports are saved to `output/` on your host
 machine (mapped via a volume), so they persist even after the container
@@ -151,6 +159,22 @@ The test suite covers the summarization, action-item extraction, and
 report-building logic. It runs fully offline in under a second, since it
 doesn't depend on Whisper or real audio files.
 
+## Design
+
+The web interface uses a dark, glass-surface design system meant to feel
+calm and trustworthy rather than like a generic cloud SaaS dashboard - the
+visual language reinforces that everything happens locally:
+
+- A pulsing "processed locally · no upload to the cloud" badge, always visible
+- Soft ambient gradients drifting slowly in the background
+- Frosted-glass cards (`backdrop-filter: blur`) with subtle depth and glow
+- A metric strip on the results page (word count, recording length, action
+  items found) for an at-a-glance summary
+
+All styling lives in `static/style.css` as plain CSS custom properties -
+no build step, no framework, easy to re-theme by editing the variables at
+the top of the file.
+
 ## Project structure
 
 ```
@@ -163,7 +187,7 @@ meeting-summarizer/
 │   ├── index.html
 │   └── results.html
 ├── static/
-│   └── style.css       # Web interface styling
+│   └── style.css       # Web interface design system
 ├── app.py              # Flask web interface
 ├── tests/
 │   ├── test_transcribe.py

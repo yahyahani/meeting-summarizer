@@ -7,21 +7,49 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+    <div class="ambient"><span></span><span></span><span></span></div>
     <div class="page">
+        <div class="brand">
+            <span class="brand-mark">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 1a3 3 0 00-3 3v6a3 3 0 006 0V4a3 3 0 00-3-3z" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19 10v1a7 7 0 01-14 0v-1M12 18v3M9 21h6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+            <span class="brand-name">Meeting Summarizer</span>
+        </div>
+
         <span class="local-badge"><span class="dot"></span>processed locally · no upload to the cloud</span>
 
         <div class="meta-row">
-            <h1>Summary</h1>
+            <h1 style="font-size:30px;">Summary ready</h1>
+            <span class="source-tag">{{ source_name }}</span>
         </div>
-        <p class="source-tag">{{ source_name }}</p>
+
+        <div class="metrics">
+            <div class="metric-card">
+                <div class="metric-value">{{ word_count }}</div>
+                <div class="metric-label">words transcribed</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">~{{ duration_minutes }}m</div>
+                <div class="metric-label">recording length</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value accent">{{ action_items|length }}</div>
+                <div class="metric-label">action items found</div>
+            </div>
+        </div>
 
         <section class="block">
             <div class="block-heading">summary</div>
-            <p class="summary-text">{{ summary }}</p>
+            <div class="summary-card">
+                <p class="summary-text">{{ summary }}</p>
+            </div>
         </section>
 
         <section class="block">
-            <div class="block-heading">action items ({{ action_items|length }})</div>
+            <div class="block-heading">action items</div>
             {% if action_items %}
             <ul class="action-items">
                 {% for item in action_items %}
