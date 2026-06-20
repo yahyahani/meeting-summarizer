@@ -10,3 +10,4 @@ output/*.md
 .pytest_cache/
 uploads/*
 !uploads/.gitkeep
+output/*.pdf

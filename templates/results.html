@@ -24,6 +24,7 @@
         <div class="meta-row">
             <h1 style="font-size:30px;">Summary ready</h1>
             <span class="source-tag">{{ source_name }}</span>
+            <span class="source-tag lang-tag">{{ language_name }}</span>
         </div>
 
         <div class="metrics">
@@ -39,6 +40,23 @@
                 <div class="metric-value accent">{{ action_items|length }}</div>
                 <div class="metric-label">action items found</div>
             </div>
+        </div>
+
+        <div class="downloads-row">
+            <a class="download-link" href="{{ url_for('download_transcript', filename=transcript_filename) }}" download>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 3v12M12 15l-4-4M12 15l4-4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                transcript.txt
+            </a>
+            <a class="download-link" href="{{ url_for('download_transcript', filename=pdf_filename) }}" download>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 3v12M12 15l-4-4M12 15l4-4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                full report.pdf
+            </a>
         </div>
 
         <section class="block">

@@ -4,3 +4,6 @@ nltk
 click
 pytest
 flask
+reportlab
+arabic-reshaper
+python-bidi

@@ -17,20 +17,25 @@ local web interface.
 audio file (.mp3 / .wav / .m4a)
         │
         ▼
-  Whisper (local)  ───►  full transcript
+  Whisper (local)  ───►  full transcript + detected language
         │
         ▼
   Summarizer       ───►  summary + action items
         │
         ▼
-  Markdown report  ───►  output/your_meeting_summary.md
+  Downloads        ───►  transcript.txt  +  full report.pdf
 ```
 
-Given an audio file, it produces a summary containing:
+Given an audio file, the web interface gives you:
 
 - A short summary of the key points
 - A checklist of detected action items
-- The full transcript (collapsible, for reference)
+- The full transcript, viewable inline or downloaded as a `.txt` file
+- A formatted **PDF report** (summary + action items + transcript) for sharing
+- The **automatically detected language** of the recording, shown next to the result
+
+The CLI pipeline produces the same transcript and summary as a Markdown
+report (see "Command-line pipeline" below).
 
 ## Features
 
@@ -38,6 +43,10 @@ Given an audio file, it produces a summary containing:
   once the Whisper model is downloaded
 - **Two ways to use it** - a one-command CLI pipeline, or a local web
   interface for drag-and-drop uploads
+- **Multi-language** - Whisper auto-detects the spoken language; the
+  transcript, summary, and downloadable PDF are produced in that language
+- **Downloadable in two formats** - plain `.txt` transcript, or a full
+  formatted PDF report (summary + action items + transcript)
 - **Configurable** - choose the Whisper model size, summary length, and
   output location
 - **Tested** - core logic covered by a pytest suite
@@ -155,8 +164,9 @@ python3 src/summarize.py output/meeting_transcript.txt
 python3 -m pytest tests/ -v
 ```
 
-The test suite covers the summarization, action-item extraction, and
-report-building logic. It runs fully offline in under a second, since it
+The test suite covers the summarization, action-item extraction,
+report-building, and PDF generation logic (including Arabic and Chinese
+rendering). It runs fully offline in under a few seconds, since it
 doesn't depend on Whisper or real audio files.
 
 ## Design
@@ -175,25 +185,66 @@ All styling lives in `static/style.css` as plain CSS custom properties -
 no build step, no framework, easy to re-theme by editing the variables at
 the top of the file.
 
+## Language support
+
+Whisper automatically detects the spoken language from the audio itself -
+this isn't a setting you choose, it's identified during transcription. The
+transcript, summary, and PDF report are all produced in that same
+language (Whisper transcribes, it doesn't translate).
+
+The detected language is shown as a badge next to the result in the web
+interface (e.g. "English", "Arabic", "Chinese").
+
+PDF generation uses a font appropriate for the detected script:
+
+| Script | Languages (examples) | Font used |
+|---|---|---|
+| Latin / Cyrillic / Greek | English, Dutch, French, German, Spanish, Russian, Polish, Greek, ... | Noto Sans |
+| Arabic | Arabic, Persian, Urdu | Noto Sans Arabic (with correct right-to-left reshaping) |
+| CJK | Chinese, Japanese, Korean | Noto Sans SC |
+
+Arabic-script text is reshaped and reordered with `arabic-reshaper` and
+`python-bidi` before rendering, so letters connect properly and the text
+flows right-to-left as expected - ReportLab does not do this automatically.
+
+## Downloads
+
+From the web interface results page, two downloads are available:
+
+- **`transcript.txt`** - the raw transcript, plain text
+- **`full report.pdf`** - a formatted PDF containing the summary, the
+  action item checklist, and the full transcript, using the appropriate
+  font for the detected language
+
+Both are generated on the fly and saved to `output/` on the host machine
+(when running via Docker, this is mapped as a volume so files persist
+after the container stops).
+
 ## Project structure
 
 ```
 meeting-summarizer/
 ├── src/
-│   ├── transcribe.py   # Stage 1: audio -> text (Whisper)
+│   ├── transcribe.py   # Stage 1: audio -> text + language detection (Whisper)
 │   ├── summarize.py    # Stage 2: text -> summary + action items
-│   └── pipeline.py     # CLI entry point combining both stages
+│   ├── pdf_report.py   # Builds the downloadable PDF report (multi-language)
+│   └── pipeline.py     # CLI entry point combining transcription + summarization
 ├── templates/          # HTML templates for the web interface
 │   ├── index.html
 │   └── results.html
 ├── static/
-│   └── style.css       # Web interface design system
+│   ├── style.css       # Web interface design system
+│   └── fonts/          # Bundled Unicode fonts for PDF generation
+│       ├── NotoSans-Regular.ttf        # Latin / Cyrillic / Greek
+│       ├── NotoSansArabic-Regular.ttf  # Arabic
+│       └── NotoSansSC-Regular.ttf      # Chinese / Japanese / Korean
 ├── app.py              # Flask web interface
 ├── tests/
 │   ├── test_transcribe.py
-│   └── test_summarize.py
+│   ├── test_summarize.py
+│   └── test_pdf_report.py
 ├── sample_audio/       # put your audio files here
-├── output/             # generated transcripts and reports land here
+├── output/             # generated transcripts, PDFs, and reports land here
 ├── uploads/            # temporary storage for web-uploaded files
 ├── conftest.py         # pytest path configuration
 ├── Dockerfile

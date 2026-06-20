@@ -431,7 +431,19 @@ select:hover {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
+  margin-bottom: 24px;
+}
+
+.downloads-row {
+  display: flex;
+  gap: 10px;
   margin-bottom: 12px;
+}
+
+.lang-tag {
+  color: var(--accent-bright);
+  border-color: var(--accent-dim);
+  background: var(--accent-bg);
 }
 
 .metric-card {
@@ -488,6 +500,59 @@ section.block {
   flex: 1;
   height: 1px;
   background: linear-gradient(90deg, var(--border), transparent);
+}
+
+.block-heading-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.block-heading-row .block-heading {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.block-heading-row .block-heading::after {
+  width: 60px;
+  flex: 0 0 auto;
+}
+
+.download-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  text-decoration: none;
+  transition: color 0.2s var(--ease), border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.block-heading-row .download-link {
+  margin-left: auto;
+}
+
+.downloads-row .download-link {
+  flex: 1;
+  justify-content: center;
+  padding: 10px 14px;
+}
+
+.download-link svg {
+  width: 13px;
+  height: 13px;
+}
+
+.download-link:hover {
+  color: var(--accent-bright);
+  border-color: var(--accent-dim);
+  background: var(--accent-bg);
 }
 
 .summary-card {
