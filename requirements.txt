@@ -2,3 +2,4 @@ openai-whisper
 sumy
 nltk
 click
+pytest
