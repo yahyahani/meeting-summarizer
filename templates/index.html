@@ -65,6 +65,17 @@
         </div>
     </div>
 
+    <div class="processing-overlay" id="processing-overlay">
+        <div class="processing-card">
+            <div class="processing-spinner"></div>
+            <div class="processing-title">Transcribing locally&hellip;</div>
+            <div class="processing-detail" id="processing-detail">
+                This runs on your machine - larger files and bigger models take longer.
+            </div>
+            <div class="processing-elapsed"><span id="elapsed-seconds">0</span>s elapsed</div>
+        </div>
+    </div>
+
     <script>
         const fileInput = document.getElementById('file-input');
         const filenameEl = document.getElementById('filename');
@@ -102,8 +113,29 @@
         });
 
         form.addEventListener('submit', () => {
-            submitBtn.textContent = 'Processing… this can take a minute';
+            submitBtn.textContent = 'Processing…';
             submitBtn.classList.add('loading');
+
+            const overlay = document.getElementById('processing-overlay');
+            const elapsedEl = document.getElementById('elapsed-seconds');
+            const detailEl = document.getElementById('processing-detail');
+            overlay.classList.add('visible');
+
+            const messages = [
+                'This runs on your machine - larger files and bigger models take longer.',
+                'Still working - nothing has been sent anywhere, it all stays local.',
+                'Longer recordings can take several minutes on a CPU. Hang tight.',
+                'Almost certainly still going - feel free to grab a coffee.',
+            ];
+
+            let seconds = 0;
+            setInterval(() => {
+                seconds += 1;
+                elapsedEl.textContent = seconds;
+                if (seconds === 8) detailEl.textContent = messages[1];
+                if (seconds === 25) detailEl.textContent = messages[2];
+                if (seconds === 60) detailEl.textContent = messages[3];
+            }, 1000);
         });
     </script>
 </body>

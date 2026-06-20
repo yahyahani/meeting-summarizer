@@ -50,6 +50,7 @@
                 </svg>
                 transcript.txt
             </a>
+            {% if pdf_filename %}
             <a class="download-link" href="{{ url_for('download_transcript', filename=pdf_filename) }}" download>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 3v12M12 15l-4-4M12 15l4-4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -57,6 +58,7 @@
                 </svg>
                 full report.pdf
             </a>
+            {% endif %}
         </div>
 
         <section class="block">

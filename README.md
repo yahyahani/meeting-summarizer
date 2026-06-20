@@ -164,10 +164,10 @@ python3 src/summarize.py output/meeting_transcript.txt
 python3 -m pytest tests/ -v
 ```
 
-The test suite covers the summarization, action-item extraction,
-report-building, and PDF generation logic (including Arabic and Chinese
-rendering). It runs fully offline in under a few seconds, since it
-doesn't depend on Whisper or real audio files.
+The test suite covers summarization, action-item extraction, report
+building, PDF generation (including Arabic and Chinese rendering), and
+the Flask app's validation/cleanup logic. It runs fully offline in a few
+seconds, since it doesn't depend on Whisper or real audio files.
 
 ## Design
 
@@ -220,6 +220,29 @@ Both are generated on the fly and saved to `output/` on the host machine
 (when running via Docker, this is mapped as a volume so files persist
 after the container stops).
 
+## Reliability and safety
+
+A few things the web interface does to stay stable under real use:
+
+- **Upload size limit** - files over 200MB are rejected before being read
+  into memory (`MAX_CONTENT_LENGTH` in `app.py`)
+- **Automatic cleanup** - files in `uploads/` and `output/` older than 24
+  hours are removed at the start of each request, so disk usage doesn't
+  grow unbounded with repeated local use
+- **Input validation** - the Whisper model selection is validated against
+  a fixed allow-list server-side (not just trusted from the form), empty
+  files are rejected, and silent/no-speech recordings get a clear message
+  instead of an empty result
+- **No leaked internals** - if transcription fails, the user sees a plain
+  error message; the actual exception is logged server-side, never shown
+  in the response
+- **Debug mode is off by default** - Flask's debug mode (which exposes an
+  interactive debugger and full stack traces) must be explicitly enabled
+  via `FLASK_DEBUG=true`, rather than being on by default
+- **PDF generation failures don't lose your transcript** - if building the
+  PDF report fails for any reason, the page still shows the transcript and
+  summary; only the PDF download is skipped
+
 ## Project structure
 
 ```
@@ -242,13 +265,15 @@ meeting-summarizer/
 ├── tests/
 │   ├── test_transcribe.py
 │   ├── test_summarize.py
-│   └── test_pdf_report.py
+│   ├── test_pdf_report.py
+│   └── test_app.py
 ├── sample_audio/       # put your audio files here
 ├── output/             # generated transcripts, PDFs, and reports land here
 ├── uploads/            # temporary storage for web-uploaded files
 ├── conftest.py         # pytest path configuration
 ├── Dockerfile
 ├── docker-compose.yml
+├── LICENSE
 └── requirements.txt
 ```
 
